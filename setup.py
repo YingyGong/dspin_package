@@ -5,7 +5,9 @@ install_requires = [
     "anndata",
     "matplotlib",
     "scanpy",
-    "tqdm"
+    "tqdm",
+    "igraph",
+    "leidenalg",
 ]
 
 # # Replace with your package's test requirements
@@ -19,7 +21,7 @@ install_requires = [
 # ]
 
 # Managing your version (adjust accordingly)
-version = "0.0.2"  # You can manage versioning in a more sophisticated way if needed
+version = "0.1.1"  # You can manage versioning in a more sophisticated way if needed
 
 # Long description (usually a README file)
 readme = open("README.md").read()  # Adjust the file name if necessary
