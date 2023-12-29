@@ -214,7 +214,7 @@ class AbstractDSPIN(ABC):
         return params
 
     def network_infer(self,
-                      sample_col_name: str,
+                      sample_col_name: str = 'sample_id',
                       method: str = 'auto',
                       params: dict = None,
                       example_list: List[str] = None,

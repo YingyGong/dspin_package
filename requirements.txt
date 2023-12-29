@@ -2,3 +2,5 @@ anndata
 matplotlib
 scanpy
 tqdm
+igraph
+leidenalg
