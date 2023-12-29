@@ -242,12 +242,20 @@ class AbstractDSPIN(ABC):
                 "Method must be one of 'maximum_likelihood', 'mcmc_maximum_likelihood', 'pseudo_likelihood', or 'auto'.")
 
         if method == 'auto':
-            if self.num_spin <= 12:
-                method = 'maximum_likelihood'
-            elif self.num_spin <= 25:
-                method = 'mcmc_maximum_likelihood'
+            if example_list is not None:
+                if len(example_list) > 10:
+                    method = 'pseudo_likelihood'
             else:
-                method = 'pseudo_likelihood'
+                samp_list = np.unique(self.adata.obs[sample_col_name])
+                if len(samp_list) > 10:
+                    method = 'pseudo_likelihood'
+                else:
+                    if self.num_spin <= 12:
+                        method = 'maximum_likelihood'
+                    elif self.num_spin <= 25:
+                        method = 'mcmc_maximum_likelihood'
+                    else:
+                        method = 'pseudo_likelihood'
 
         print("Using {} for network inference.".format(method))
 
@@ -415,6 +423,8 @@ class ProgramDSPIN(AbstractDSPIN):
                                          :] = cadata.X[cur_filt, :][sele_ind, :]
 
         # Normalize the matrix by standard deviation
+        if issparse(gene_matrix_balanced):
+            gene_matrix_balanced = np.asarray(gene_matrix_balanced.toarray())
         std = gene_matrix_balanced.std(axis=0)
         std_clipped = std.clip(np.percentile(std, std_clip_percentile), np.inf)
         gene_matrix_balanced_normalized = gene_matrix_balanced / std_clipped
