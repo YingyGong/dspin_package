@@ -13,7 +13,8 @@ from .compute import (
     learn_network_adam,
     category_balance_number,
     compute_onmf,
-    summary_components
+    summary_components,
+    compute_relative_responses
 )
 from abc import ABC, abstractmethod
 import numpy as np
@@ -186,6 +187,7 @@ class AbstractDSPIN(ABC):
         if self.example_list is not None:
             example_list_ind = [list(self.samp_list).index(samp)
                                 for samp in self.example_list]
+            self.samp_list = self.samp_list[example_list_ind]
             raw_data = raw_data[example_list_ind]
 
         num_sample = len(raw_data)
@@ -215,6 +217,8 @@ class AbstractDSPIN(ABC):
 
     def network_infer(self,
                       sample_col_name: str = 'sample_id',
+                      control_col_name: str = None, 
+                      batch_col_name: str = None,
                       method: str = 'auto',
                       params: dict = None,
                       example_list: List[str] = None,
@@ -224,6 +228,8 @@ class AbstractDSPIN(ABC):
 
         Parameters:
         sample_col_name (str): The name of the sample column.
+        batch_col_name (str, optional): The name of the batch column in adata, default is None.
+        control_col_name (str, optional): The name of the control column in adata, default is None.
         method (str, optional): The method used for network inference, default is 'auto'.
         params (dict, optional): Dictionary of parameters to be used, default is None.
         example_list (List[str], optional): List of examples to be used, default is None.
@@ -276,6 +282,25 @@ class AbstractDSPIN(ABC):
         cur_j, cur_h = learn_network_adam(self.raw_data, method, train_dat)
         self._network = cur_j
         self._responses = cur_h
+
+        if control_col_name is not None:
+
+            assert(np.sum(self.adata.obs[control_col_name]) > 0)
+
+            unique_sample_control = self.adata.obs[['sample_id', control_col_name]].drop_duplicates().set_index('sample_id')
+            # only remain samples in self.samp_list
+            unique_sample_control = unique_sample_control.loc[self.samp_list]
+            sample_to_control_dict = unique_sample_control[control_col_name].to_dict()
+
+            if batch_col_name is None:
+                sample_batch_dict = {sample: 0 for sample in self.samp_list}
+            else:
+
+                unique_sample_batch = self.adata.obs[['sample_id', 'batch']].drop_duplicates().set_index('sample_id')
+                unique_sample_batch = unique_sample_batch.loc[self.samp_list]
+                sample_batch_dict = unique_sample_batch['batch'].to_dict()
+        
+        self._relative_responses = compute_relative_responses(self._responses, self.samp_list, sample_to_control_dict, sample_batch_dict)
 
 
 class GeneDSPIN(AbstractDSPIN):
@@ -516,6 +541,7 @@ class ProgramDSPIN(AbstractDSPIN):
         gene_group_ind = summary_components(
             all_components,
             num_onmf_components,
+            num_repeat,
             summary_method=summary_method)
 
         # Mask the prior programs and add them to the gene group indices

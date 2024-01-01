@@ -41,7 +41,7 @@ The input data should be AnnData object after typical single-cell preprocessing 
 * Sample information for each cell in adata.obs['sample_id']
 * Batch information for each cell in adata.obs['batch']
 * Clustering information for each cell in adata.obs['leiden']
-* If some samples are control conditions, the relative response vectors will be computed for each batch with respect to the average of control conditions. The control conditions can be indicated in adata.obs['if_control'] with 1 for control and 0 for non-control.
+* If some samples are control conditions, the relative response vectors will be computed for each batch with respect to the average of control conditions. The control conditions can be indicated in adata.obs['if_control'] with 1 for control and 0 for non-control. Note that all cells in the same sample and batch should have the same value in adata.obs['if_control'].
 
 The D-SPIN is initiallized by model = dspin.DSPIN(adata) with the following major arguments:
 
@@ -61,12 +61,12 @@ The gene program discovery contains two stages, the first stage subset and norma
 
 Overall, in the gene program discovery function model.gene_program_discovery() , D-SPIN takes the following major arguments: 
 
-* num_onmf_components (int, optional): The number of ONMF components. Default is infer based on num_spin and pre-assigned programs.
+* num_onmf_components (int, optional): The number of oNMF components. Default is infer based on num_spin and pre-assigned programs.
 * num_subsample (int, optional): Number of cells to use in each individual oNMF components computation. Default is 10000.
 * num_subsample_large (int, optional): Number of cells to use in computing consensus oNMF components. Default is 5 times of num_subsample.
-* num_repeat (int, optional): Number of times to repeat the ONMF computation. Default is 10.
+* num_repeat (int, optional): Number of times to repeat the oNMF computation. Default is 10.
 * balance_obs (str, optional): Cell type or clustering label in adata.obs for balanced sampling. Default is None.
-* balance_method (str, optional): Method used for balancing. Default is None.
+* balance_method (str, optional): Method used for balancing. Options are 'squareroot', 'equal', 'proportional'. Default is 'squareroot'. 
 * max_sample_rate (float, optional): Maximum oversampling rate for underrepresented cell type or clustering categories. Default is 2.
 * prior_programs (List[List[str]], optional): List of pre-assigned gene programs. Default is None.
 * summary_method (str, optional): Method used for computing sensus oNMF components. Options are 'kmeans' and 'leiden'. Default is 'kmeans'.
@@ -82,7 +82,8 @@ In the network inference step, D-SPIN automatically choose between three inferen
 MLE is exactly solution of the problem but only applies to small network. MCMC is slightly more scalable to networks with 20-40 nodes. PL takes more simplified approximation to the problem which scales to hundreds of nodes, but requires larger cell number for the approximation to be effective. in the gene program discovery function model.network_inference(), D-SPIN takes the following major arguments
 
 * sample_col_name (str, optional): Column name in adata.obs for sample information. Default is 'sample_id'
-* batch_col_name (str, optional): Column name in adata.obs for batch information. Default is 'batch'
+* control_col_name (str, optional): Column name in adata.obs for whether the cell is in a control sample. If not provided, all cells are treated as non-control and relative response vector are the same as response vector.
+* batch_col_name (str, optional): Column name in adata.obs for batch information. Relative response are computed by the control response vector in the same batch. If not provided, all cells are treated as one batch. 
 * method (str, optional): Method used for network inference. Options are 'auto', 'maximum_likelihood', 'mcmc_maximum_likelihood', 'pseudo_likelihood'.
 * example_list (List[str], optional): List of samples to use for network inference. Default is using all samples available in adata.obs[sample_col_name].
 * record_step (int, optional): Number of steps to record training progress. Default is 10.
@@ -91,7 +92,13 @@ MLE is exactly solution of the problem but only applies to small network. MCMC i
 
 ## Network analysis 
 
-In the network analysis step, D-SPIN identifies the modules in the inferred network, and automatically provide a layout of the network and perturbation responses. Further analysis and interpretaion of the network and perturbation response is up to the custome purpose. 
+After network inference, D-SPIN provides three outputs:
+
+* Inferred network adjacenty matrix in model.network 
+* Inferred pertrubation response in model.response
+* Relative perturbation response to control in model.relative_response
+
+Typical downstream analysis includes network visualization, module identification, and graph clustering of perturbation response with the network. 
 
 ## Application to signaling response data of human PBMCs
 
