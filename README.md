@@ -90,7 +90,7 @@ MLE is exactly solution of the problem but only applies to small network. MCMC i
 * params (Dict[str, Any], optional): Hypterparameters for the gradient descent of network inference. Default is None.
 
 
-## Network analysis 
+### Network analysis 
 
 After network inference, D-SPIN provides three outputs:
 
@@ -102,22 +102,19 @@ Typical downstream analysis includes network visualization, module identificatio
 
 ## Application to signaling response data of human PBMCs
 
-
-## D-SPIN Demo
-
 D-SPIN takes single-cell sequencing data of multiple perturbation conditions. In the second demo, PBMCs are treated with different signaling molecules such as CD3 antibody, LPS, IL1B, and TGFB1
 
-![alternativetext](/figure/thomsonlab_signaling/example_conditions.png)
+![alternativetext](figure/thomsonlab_signaling/example_conditions.png)
 
 D-SPIN identifies a set of gene programs that coexpress in the data, and represent each cell as a combination of gene program expression states. 
 
-![alternativetext](/figure/thomsonlab_signaling/gene_program_example.png)
+![alternativetext](figure/thomsonlab_signaling/gene_program_example.png)
 
 D-SPIN uses cross-correlation and mean of each perturbation condition to inferred a unified regulatory network and the response vector of each perturbation condition. The inference can be parallelized across perturbation conditions. The inference code is in Matlab using "parfor", while for demo purpose Python code (without parallelization) is provided.
 
 The inferred regulatory network and perturbations can be jointly analyzed to reveal how perturbations act in the context of the regulatory network.
 
-![alternativetext](/figure/thomsonlab_signaling/joint_network_perturbation.png)
+![alternativetext](figure/thomsonlab_signaling/joint_network_perturbation.png)
 
 ## Demos
 
@@ -131,8 +128,7 @@ The second demo reconstructs regulatory network and response vector in a single-
 
 [Demo2](https://colab.research.google.com/drive/1zrWFZWtaHQAzG88jgtovCPzt3wiXdlwf?usp=sharing)
 
-## General suggestions for using D-SPIN
 
-# References
+## References
 
 1. Pratapa, Aditya, et al. "Benchmarking algorithms for gene regulatory network inference from single-cell transcriptomic data." Nature methods 17.2 (2020): 147-154.
