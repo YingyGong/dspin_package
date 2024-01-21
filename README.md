@@ -45,10 +45,10 @@ The input data should be AnnData object after typical single-cell preprocessing 
 
 The D-SPIN is initiallized by model = dspin.DSPIN(adata) with the following major arguments:
 
-* adata: AnnData object with the above information
-* save_path: path to save the results
-* num_spin (default 15): number of gene programs in the model
-* filter_threshold (default 0.02): threshold for minimal proportion of cells that each gene program is expressed in
+* adata (anndata.AnnData, required): AnnData object with the above information
+* save_path (str, required): path to save the results
+* num_spin (int, optional, default 15): number of gene programs in the model
+* filter_threshold (float, optional, default 0.02): threshold for minimal proportion of cells that each gene program is expressed in
 
 ### Gene program discovery
 
