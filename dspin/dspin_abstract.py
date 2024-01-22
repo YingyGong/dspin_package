@@ -199,7 +199,7 @@ class AbstractDSPIN(ABC):
                        'lambda_l1_h': 0,
                        'lambda_l2_j': 0,
                        'lambda_l2_h': 0.05,
-                       'lambda_prior_h': 0})
+                       'lambda_l2_prior_h': 0})
         params.update({'backtrack_gap': 20,
                        'backtrack_tol': 4})
 
@@ -210,7 +210,7 @@ class AbstractDSPIN(ABC):
             params['mcmc_samplingsz'] = 2e5
             params['mcmc_samplingmix'] = 1e3
             params['mcmc_samplegap'] = 1
-        else:
+        elif method == 'pseudo_likelihood':
             params['stepsz'] = 0.05
 
         return params
@@ -222,6 +222,7 @@ class AbstractDSPIN(ABC):
                       method: str = 'auto',
                       params: dict = None,
                       example_list: List[str] = None,
+                      prior_perturb_matrix: np.array = None,
                       record_step: int = 10):
         """
         Execute the network inference using the specified method and parameters and record the results.
@@ -276,6 +277,8 @@ class AbstractDSPIN(ABC):
 
         train_dat = self.default_params(method)
         train_dat['rec_gap'] = record_step
+        if prior_perturb_matrix is not None:
+            train_dat['perturb_matrix'] = prior_perturb_matrix
         if params is not None:
             train_dat.update(params)
 
