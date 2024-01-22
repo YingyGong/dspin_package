@@ -10,7 +10,7 @@ D-SPIN is implemented in Python and Matlab. The Python code is sufficient for an
 
 The python code can be installed with 
 
-`pip install dspin`
+`pip install dspin==1.0.0`
 
 
 The Matlab code can be downloaded from the folder "DSPIN_matlab", and directly executable in Matlab after specifying the path to the data. 
@@ -45,10 +45,10 @@ The input data should be AnnData object after typical single-cell preprocessing 
 
 The D-SPIN is initiallized by model = dspin.DSPIN(adata) with the following major arguments:
 
-* adata: AnnData object with the above information
-* save_path: path to save the results
-* num_spin (default 15): number of gene programs in the model
-* filter_threshold (default 0.02): threshold for minimal proportion of cells that each gene program is expressed in
+* adata (anndata.AnnData, required): AnnData object with the above information
+* save_path (str, required): path to save the results
+* num_spin (int, optional, default 15): number of gene programs in the model
+* filter_threshold (float, optional, default 0.02): threshold for minimal proportion of cells that each gene program is expressed in
 
 ### Gene program discovery
 
@@ -122,11 +122,11 @@ Two demos of D-SPIN are available on Google Colab.
 
 The first demo reconstructs the regulatory network of simulated hematopoietic stem cell (HSC) differentiation network with perturbations using the BEELINE framework (Pratapa, Aditya, et al. Nature methods, 2020). 
 
-[Demo1](https://colab.research.google.com/drive/1YdvjNiCkyGx-azXzXz7gqjGGE9RXrDbL?usp=sharing)
+[Demo1](https://colab.research.google.com/drive/1DET3uuhWIkixsZHK4j4cKW3ea4dsy3O6?usp=sharing)
 
 The second demo reconstructs regulatory network and response vector in a single-cell dataset collected in the ThomsonLab.In the dataset, human peripheral blood mononuclear cells (PBMCs) were treated with various signaling molecules with different dosages. 
 
-[Demo2](https://colab.research.google.com/drive/1zrWFZWtaHQAzG88jgtovCPzt3wiXdlwf?usp=sharing)
+[Demo2](https://colab.research.google.com/drive/1nQbxtdb7kE9eztXoTSKxOHpEpJX5sd3H?usp=sharing)
 
 
 ## References

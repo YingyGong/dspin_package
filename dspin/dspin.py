@@ -60,7 +60,7 @@ class AbstractDSPIN(ABC):
         Calculate and return the correlation of raw data.
     default_params(method)
         Provide the default parameters for the specified algorithm.
-    network_infer(sample_col_name, method, params, example_list, record_step)
+    network_inference(sample_col_name, method, params, example_list, record_step)
         Execute the network inference using the specified method and parameters and record the results.
     """
 
@@ -199,7 +199,7 @@ class AbstractDSPIN(ABC):
                        'lambda_l1_h': 0,
                        'lambda_l2_j': 0,
                        'lambda_l2_h': 0.05,
-                       'lambda_l2_prior_h': 0})
+                       'lambda_prior_h': 0})
         params.update({'backtrack_gap': 20,
                        'backtrack_tol': 4})
 
@@ -210,19 +210,18 @@ class AbstractDSPIN(ABC):
             params['mcmc_samplingsz'] = 2e5
             params['mcmc_samplingmix'] = 1e3
             params['mcmc_samplegap'] = 1
-        elif method == 'pseudo_likelihood':
+        else:
             params['stepsz'] = 0.05
 
         return params
 
-    def network_infer(self,
+    def network_inference(self,
                       sample_col_name: str = 'sample_id',
                       control_col_name: str = None, 
                       batch_col_name: str = None,
                       method: str = 'auto',
                       params: dict = None,
                       example_list: List[str] = None,
-                      prior_perturb_matrix: np.array = None,
                       record_step: int = 10):
         """
         Execute the network inference using the specified method and parameters and record the results.
@@ -249,20 +248,16 @@ class AbstractDSPIN(ABC):
                 "Method must be one of 'maximum_likelihood', 'mcmc_maximum_likelihood', 'pseudo_likelihood', or 'auto'.")
 
         if method == 'auto':
-            if example_list is not None:
-                if len(example_list) > 10:
-                    method = 'pseudo_likelihood'
+            samp_list = np.unique(self.adata.obs[sample_col_name]) if example_list is None else example_list
+            if len(samp_list) > 10:
+                method = 'pseudo_likelihood'
             else:
-                samp_list = np.unique(self.adata.obs[sample_col_name])
-                if len(samp_list) > 10:
-                    method = 'pseudo_likelihood'
+                if self.num_spin <= 12:
+                    method = 'maximum_likelihood'
+                elif self.num_spin <= 25:
+                    method = 'mcmc_maximum_likelihood'
                 else:
-                    if self.num_spin <= 12:
-                        method = 'maximum_likelihood'
-                    elif self.num_spin <= 25:
-                        method = 'mcmc_maximum_likelihood'
-                    else:
-                        method = 'pseudo_likelihood'
+                    method = 'pseudo_likelihood'
 
         print("Using {} for network inference.".format(method))
 
@@ -277,8 +272,6 @@ class AbstractDSPIN(ABC):
 
         train_dat = self.default_params(method)
         train_dat['rec_gap'] = record_step
-        if prior_perturb_matrix is not None:
-            train_dat['perturb_matrix'] = prior_perturb_matrix
         if params is not None:
             train_dat.update(params)
 
@@ -303,7 +296,7 @@ class AbstractDSPIN(ABC):
                 unique_sample_batch = unique_sample_batch.loc[self.samp_list]
                 sample_batch_dict = unique_sample_batch['batch'].to_dict()
         
-        self._relative_responses = compute_relative_responses(self._responses, self.samp_list, sample_to_control_dict, sample_batch_dict)
+            self._relative_responses = compute_relative_responses(self._responses, self.samp_list, sample_to_control_dict, sample_batch_dict)
 
 
 class GeneDSPIN(AbstractDSPIN):
